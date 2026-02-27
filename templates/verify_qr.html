@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-soft mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                    <div>
+                        <h2 class="section-title mb-0">QR Verification</h2>
+                        <p class="section-subtitle">Staff/Admin entry validation portal</p>
+                    </div>
+                    <span class="badge badge-premium px-3 py-2">Staff Access</span>
+                </div>
+
+                <!-- Scanner Controls -->
+                <div class="card bg-light border-0 mb-3">
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            <button type="button" class="btn btn-brand" id="startScannerBtn">Start Camera Scanner</button>
+                            <button type="button" class="btn btn-soft" id="stopScannerBtn">Stop Scanner</button>
+                        </div>
+                        <p class="text-muted small mb-2">
+                            Use camera to scan QR. The scanned registration ID will auto-fill below.
+                        </p>
+                        <div id="qr-reader" style="width:100%; max-width:420px; display:none;"></div>
+                    </div>
+                </div>
+
+                <form method="post" id="verifyForm">
+                    {% csrf_token %}
+                    <label for="registration_id" class="fw-semibold mb-2">Registration ID (UUID)</label>
+                    <div class="input-group">
+                        <input type="text" id="registration_id" name="registration_id" class="form-control"
+                               placeholder="Scan QR or paste registration UUID manually">
+                        <button class="btn btn-brand" type="submit">Verify</button>
+                    </div>
+                </form>
+
+                {% if error %}
+                    <div class="alert alert-danger mt-3 mb-0">{{ error }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if result %}
+            {% if result.status == 'verified_success' %}
+                <div class="card shadow-soft border-start border-4 border-success">
+                    <div class="card-body p-4">
+                        <h4 class="text-success fw-bold mb-2">✅ Verification Successful</h4>
+                        <p class="text-muted">Entry is valid and attendance has been marked.</p>
+
+                        <hr>
+
+                        <p class="mb-1"><strong>Event:</strong> {{ result.registration.event.title }}</p>
+                        <p class="mb-1"><strong>Attendee:</strong> {{ result.registration.user.username }}</p>
+                        <p class="mb-1"><strong>Date:</strong> {{ result.registration.event.date }}</p>
+                        <p class="mb-1"><strong>Venue:</strong> {{ result.registration.event.venue }}</p>
+                        <p class="mb-1"><strong>Verified By:</strong> {{ result.registration.verified_by.username }}</p>
+                        <p class="mb-0"><strong>Verified At:</strong> {{ result.registration.verified_at }}</p>
+                    </div>
+                </div>
+            {% elif result.status == 'already_verified' %}
+                <div class="card shadow-soft border-start border-4 border-warning">
+                    <div class="card-body p-4">
+                        <h4 class="text-warning fw-bold mb-2">⚠️ Already Verified</h4>
+                        <p class="text-muted">This QR has already been used for entry.</p>
+
+                        <hr>
+
+                        <p class="mb-1"><strong>Event:</strong> {{ result.registration.event.title }}</p>
+                        <p class="mb-1"><strong>Attendee:</strong> {{ result.registration.user.username }}</p>
+                        <p class="mb-1"><strong>Verified By:</strong> {{ result.registration.verified_by.username }}</p>
+                        <p class="mb-0"><strong>Verified At:</strong> {{ result.registration.verified_at }}</p>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+<!-- QR Scanner Library -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+    let html5QrCode = null;
+    let scannerRunning = false;
+
+    const qrReaderEl = document.getElementById("qr-reader");
+    const registrationInput = document.getElementById("registration_id");
+    const startBtn = document.getElementById("startScannerBtn");
+    const stopBtn = document.getElementById("stopScannerBtn");
+    const verifyForm = document.getElementById("verifyForm");
+
+    function extractRegistrationId(scannedText) {
+        // Supports:
+        // 1) plain UUID only
+        // 2) "User:..., Event:..., ID: <uuid>"
+        const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
+        const match = scannedText.match(uuidRegex);
+        return match ? match[0] : scannedText.trim();
+    }
+
+    async function startScanner() {
+        if (scannerRunning) return;
+
+        qrReaderEl.style.display = "block";
+        html5QrCode = new Html5Qrcode("qr-reader");
+
+        try {
+            await html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 220 },
+                (decodedText) => {
+                    const regId = extractRegistrationId(decodedText);
+                    registrationInput.value = regId;
+
+                    // stop scanner after successful scan
+                    stopScanner();
+
+                    // auto-submit after short delay (optional)
+                    setTimeout(() => verifyForm.submit(), 300);
+                },
+                (errorMessage) => {
+                    // ignore scan frame errors
+                }
+            );
+            scannerRunning = true;
+        } catch (err) {
+            alert("Camera access failed. You can still paste the Registration ID manually.");
+            console.error(err);
+        }
+    }
+
+    async function stopScanner() {
+        if (!html5QrCode || !scannerRunning) {
+            qrReaderEl.style.display = "none";
+            return;
+        }
+
+        try {
+            await html5QrCode.stop();
+            await html5QrCode.clear();
+        } catch (err) {
+            console.error(err);
+        } finally {
+            scannerRunning = false;
+            qrReaderEl.style.display = "none";
+        }
+    }
+
+    startBtn.addEventListener("click", startScanner);
+    stopBtn.addEventListener("click", stopScanner);
+
+    window.addEventListener("beforeunload", () => {
+        if (scannerRunning) {
+            stopScanner();
+        }
+    });
+</script>
+
+{% endblock %}

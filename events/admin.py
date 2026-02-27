@@ -11,8 +11,9 @@ class EventAdmin(admin.ModelAdmin):
 
 @admin.register(Registration)
 class RegistrationAdmin(admin.ModelAdmin):
-    list_display = ('user', 'event')
-    search_fields = ('user__username', 'event__title')
+    list_display = ('user', 'event', 'attended', 'verified_at', 'verified_by')
+    search_fields = ('user__username', 'event__title', 'registration_id')
+    list_filter = ('attended', 'event__category')
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):

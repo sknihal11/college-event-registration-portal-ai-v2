@@ -14,6 +14,9 @@ import qrcode
 from django.http import HttpResponse
 import csv
 from django.http import HttpResponse
+from django.utils import timezone
+import re
+
 
 def home(request):
     query = request.GET.get('q', '')
@@ -156,7 +159,7 @@ def generate_qr(request, registration_id):
         user=request.user
     )
 
-    qr_data = f"User: {registration.user.username}, Event: {registration.event.title}, ID: {registration.registration_id}"
+    qr_data = str(registration.registration_id)
     qr = qrcode.make(qr_data)
 
     import io
@@ -205,3 +208,54 @@ def export_registrations_csv(request):
         ])
 
     return response
+
+@login_required
+def verify_qr(request):
+    # Allow only staff/admin to verify entries
+    if not request.user.is_staff:
+        return render(request, 'unauthorized.html', status=403)
+
+    result = None
+    error = None
+
+    if request.method == 'POST':
+        raw_input = request.POST.get('registration_id', '').strip()
+
+        # Extract UUID even if scanned text contains extra words
+        uuid_match = re.search(
+            r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}',
+            raw_input
+        )
+
+        if not uuid_match:
+            error = "Invalid QR format. UUID not found."
+            return render(request, 'verify_qr.html', {'result': None, 'error': error})
+
+        registration_id = uuid_match.group(0)
+
+        try:
+            reg = Registration.objects.select_related('user', 'event').get(registration_id=registration_id)
+
+            if reg.attended:
+                result = {
+                    'status': 'already_verified',
+                    'registration': reg
+                }
+            else:
+                reg.attended = True
+                reg.verified_at = timezone.now()
+                reg.verified_by = request.user
+                reg.save()
+
+                result = {
+                    'status': 'verified_success',
+                    'registration': reg
+                }
+
+        except Registration.DoesNotExist:
+            error = "Invalid QR / Registration ID not found."
+
+    return render(request, 'verify_qr.html', {
+        'result': result,
+        'error': error
+    })

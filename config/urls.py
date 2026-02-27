@@ -15,6 +15,7 @@ urlpatterns = [
     path('analytics/', views.analytics_dashboard, name='analytics'),
     path('qr/<uuid:registration_id>/', views.generate_qr, name='generate_qr'),
     path('export-csv/', views.export_registrations_csv, name='export_csv'),
+    path('verify-qr/', views.verify_qr, name='verify_qr'),
 ]
 
 if settings.DEBUG:

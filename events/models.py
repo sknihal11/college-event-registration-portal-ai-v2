@@ -34,6 +34,16 @@ class Registration(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     registration_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
+    attended = models.BooleanField(default=False)
+    verified_at = models.DateTimeField(blank=True, null=True)
+    verified_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='verified_registrations'
+    )
+
     class Meta:
         unique_together = ('user', 'event')
 
