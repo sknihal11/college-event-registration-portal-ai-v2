@@ -6,7 +6,6 @@ from django.contrib import messages
 from django.core.mail import send_mail
 from .models import Event, Registration
 from .recommendation import get_recommendations
-import matplotlib.pyplot as plt
 import io
 import urllib, base64
 from collections import Counter
@@ -119,6 +118,9 @@ def my_registrations(request):
     return render(request, 'my_registrations.html', {'registrations': registrations})
 
 @login_required
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 def analytics_dashboard(request):
     if not request.user.is_staff:
         return render(request, 'unauthorized.html', status=403)
@@ -138,6 +140,7 @@ def analytics_dashboard(request):
 
     buffer = io.BytesIO()
     plt.savefig(buffer, format='png')
+    plt.close(fig)
     buffer.seek(0)
     image_png = buffer.getvalue()
     buffer.close()
