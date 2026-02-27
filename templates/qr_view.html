@@ -28,13 +28,12 @@
                                 <h5 class="fw-bold mb-3">{{ registration.event.title }}</h5>
 
                                 <div class="small">
-                                    <div class="mb-2"><strong>Category:</strong> {{ registration.event.category|title }}</div>
-                                    <div class="mb-2"><strong>Date:</strong> {{ registration.event.date }}</div>
-                                    <div class="mb-2"><strong>Venue:</strong> {{ registration.event.venue }}</div>
-                                    <div class="mb-2"><strong>Attendee:</strong> {{ registration.user.username }}</div>
-                                    <div class="mb-0"><strong>Registration ID:</strong><br>
-                                        <span class="text-muted">{{ <div class="mb-0"><strong>Pass Status:</strong> <span class="text-success fw-semibold">Valid</span></div> }}</span>
-                                    </div>
+                                <div class="mb-2"><strong>Category:</strong> {{ registration.event.category|title }}</div>
+                                <div class="mb-2"><strong>Date:</strong> {{ registration.event.date }}</div>
+                                <div class="mb-2"><strong>Venue:</strong> {{ registration.event.venue }}</div>
+                                <div class="mb-2"><strong>Attendee:</strong> {{ registration.user.username }}</div>
+                                <div class="mb-0"><strong>Pass Status:</strong> <span class="text-success fw-semibold">Valid</span></div>
+                                </div>
                                 </div>
                             </div>
                         </div>

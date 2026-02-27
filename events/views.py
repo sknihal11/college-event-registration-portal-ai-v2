@@ -12,10 +12,11 @@ from collections import Counter
 import qrcode
 from django.http import HttpResponse
 import csv
-from django.http import HttpResponse
 from django.utils import timezone
 import re
-
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 def home(request):
     query = request.GET.get('q', '')
@@ -118,9 +119,6 @@ def my_registrations(request):
     return render(request, 'my_registrations.html', {'registrations': registrations})
 
 @login_required
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 def analytics_dashboard(request):
     if not request.user.is_staff:
         return render(request, 'unauthorized.html', status=403)
