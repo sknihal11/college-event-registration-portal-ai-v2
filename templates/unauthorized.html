@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-soft">
+            <div class="card-body p-4 p-md-5 text-center">
+                <span class="badge badge-premium px-3 py-2 mb-3">Access Restricted</span>
+                <h2 class="section-title mb-2">Unauthorized Access</h2>
+                <p class="section-subtitle mb-4">
+                    You do not have permission to view this page.
+                </p>
+
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                    <a href="/" class="btn btn-brand">Go to Home</a>
+                    <a href="/login/" class="btn btn-soft">Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

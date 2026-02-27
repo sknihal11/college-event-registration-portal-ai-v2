@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+        <div class="card shadow-soft">
+            <div class="card-body p-4 p-md-5">
+
+                <div class="text-center mb-4">
+                    <span class="badge badge-premium px-3 py-2 mb-2">Verified Entry Pass</span>
+                    <h2 class="section-title mb-1">Event QR Pass</h2>
+                    <p class="section-subtitle">Present this QR code at the venue for verification and entry</p>
+                </div>
+
+                <div class="row g-4 align-items-center">
+                    <div class="col-md-5 text-center">
+                        <div class="card glass p-3">
+                            <img src="data:image/png;base64,{{ qr_base64 }}"
+                                 class="img-fluid rounded bg-white p-2"
+                                 alt="QR Code"
+                                 style="max-width: 280px;">
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                <h5 class="fw-bold mb-3">{{ registration.event.title }}</h5>
+
+                                <div class="small">
+                                    <div class="mb-2"><strong>Category:</strong> {{ registration.event.category|title }}</div>
+                                    <div class="mb-2"><strong>Date:</strong> {{ registration.event.date }}</div>
+                                    <div class="mb-2"><strong>Venue:</strong> {{ registration.event.venue }}</div>
+                                    <div class="mb-2"><strong>Attendee:</strong> {{ registration.user.username }}</div>
+                                    <div class="mb-0"><strong>Registration ID:</strong><br>
+                                        <span class="text-muted">{{ registration.registration_id }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mt-3 mb-0">
+                            <strong>Note:</strong> Keep this QR pass safe. It is unique to your registration and used for event entry verification.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
+                    <a href="/my-events/" class="btn btn-dark">← Back to My Events</a>
+                    <a href="/" class="btn btn-soft">Home</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

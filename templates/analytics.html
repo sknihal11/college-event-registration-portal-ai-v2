@@ -1,26 +1,54 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Analytics Dashboard</h2>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="section-title mb-0">Analytics Dashboard</h2>
+        <p class="section-subtitle">Administrative insights for event planning and registrations</p>
+    </div>
+    <span class="badge badge-premium px-3 py-2">Admin Only</span>
+</div>
 
-<div class="row mb-4">
+<div class="row g-3 mb-4">
     <div class="col-md-6">
-        <div class="card shadow p-3">
-            <h5>Total Events</h5>
-            <h2>{{ total_events }}</h2>
+        <div class="card shadow-soft h-100">
+            <div class="card-body">
+                <div class="text-muted small mb-1">Total Events</div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="fw-bold mb-0">{{ total_events }}</h2>
+                    <span class="badge badge-soft px-3 py-2">Live</span>
+                </div>
+            </div>
         </div>
     </div>
+
     <div class="col-md-6">
-        <div class="card shadow p-3">
-            <h5>Total Registrations</h5>
-            <h2>{{ total_registrations }}</h2>
+        <div class="card shadow-soft h-100">
+            <div class="card-body">
+                <div class="text-muted small mb-1">Total Registrations</div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="fw-bold mb-0">{{ total_registrations }}</h2>
+                    <span class="badge badge-soft px-3 py-2">Updated</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="card shadow p-4">
-    <h5>Event Category Distribution</h5>
-    <img src="data:image/png;base64,{{ graph }}">
+<div class="card shadow-soft">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+                <h5 class="fw-bold mb-0">Event Category Distribution</h5>
+                <p class="section-subtitle">Visual overview of event types in the system</p>
+            </div>
+            <span class="badge badge-soft px-3 py-2">Matplotlib Chart</span>
+        </div>
+
+        <div class="text-center">
+            <img src="data:image/png;base64,{{ graph }}" class="img-fluid rounded" alt="Analytics Chart">
+        </div>
+    </div>
 </div>
 
 {% endblock %}

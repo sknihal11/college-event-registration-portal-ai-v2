@@ -12,24 +12,42 @@ import urllib, base64
 from collections import Counter
 import qrcode
 from django.http import HttpResponse
-
+import csv
+from django.http import HttpResponse
 
 def home(request):
-    query = request.GET.get('q')
+    query = request.GET.get('q', '')
+    selected_category = request.GET.get('category', '')
+
     events = Event.objects.all().order_by('date')
 
     if query:
         events = events.filter(title__icontains=query)
 
+    if selected_category:
+        events = events.filter(category=selected_category)
+
     recommendations = []
     if request.user.is_authenticated:
         recommendations = get_recommendations(request.user)
 
+    all_events = Event.objects.all()
+    total_events = all_events.count()
+    total_capacity = sum(event.capacity for event in all_events)
+    total_registered = sum(event.registered_count() for event in all_events)
+
+    category_choices = Event.CATEGORY_CHOICES
+
     return render(request, 'home.html', {
         'events': events,
-        'recommendations': recommendations
+        'recommendations': recommendations,
+        'total_events': total_events,
+        'total_capacity': total_capacity,
+        'total_registered': total_registered,
+        'category_choices': category_choices,
+        'selected_category': selected_category,
+        'query': query,
     })
-
 
 def signup_view(request):
     if request.method == 'POST':
@@ -99,6 +117,8 @@ def my_registrations(request):
 
 @login_required
 def analytics_dashboard(request):
+    if not request.user.is_staff:
+        return render(request, 'unauthorized.html', status=403)
     events = Event.objects.all()
     registrations = Registration.objects.all()
 
@@ -137,9 +157,51 @@ def generate_qr(request, registration_id):
     )
 
     qr_data = f"User: {registration.user.username}, Event: {registration.event.title}, ID: {registration.registration_id}"
-
     qr = qrcode.make(qr_data)
 
-    response = HttpResponse(content_type="image/png")
-    qr.save(response, "PNG")
+    import io
+    import base64
+
+    buffer = io.BytesIO()
+    qr.save(buffer, format="PNG")
+    qr_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    buffer.close()
+
+    return render(request, 'qr_view.html', {
+        'registration': registration,
+        'qr_base64': qr_base64,
+    })
+
+@login_required
+def export_registrations_csv(request):
+    if not request.user.is_staff:
+        return render(request, 'unauthorized.html', status=403)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="registrations.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow([
+        'Username',
+        'Email',
+        'Event Title',
+        'Category',
+        'Date',
+        'Venue',
+        'Registration ID'
+    ])
+
+    registrations = Registration.objects.select_related('user', 'event').all()
+
+    for reg in registrations:
+        writer.writerow([
+            reg.user.username,
+            reg.user.email,
+            reg.event.title,
+            reg.event.category,
+            reg.event.date,
+            reg.event.venue,
+            reg.registration_id
+        ])
+
     return response

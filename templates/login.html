@@ -1,9 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Login</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn btn-success">Login</button>
-</form>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-soft">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <span class="badge badge-soft px-3 py-2 mb-2">Secure Access</span>
+                    <h2 class="section-title mb-1">Login</h2>
+                    <p class="section-subtitle">Sign in to register for events and manage your passes</p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button class="btn btn-brand w-100 mt-2">Login</button>
+                </form>
+
+                <div class="text-center mt-4">
+                    <p class="mb-0 text-muted">
+                        Don’t have an account? <a href="/signup/" class="fw-semibold">Create one</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

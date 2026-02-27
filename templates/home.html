@@ -1,72 +1,259 @@
 {% extends "base.html" %}
 {% block content %}
 
-<form method="get" class="mb-4">
-    <div class="input-group">
-        <input type="text" name="q" class="form-control" placeholder="Search events...">
-        <button class="btn btn-dark">Search</button>
-    </div>
-</form>
+<!-- Hero -->
+<div class="hero mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <span class="badge badge-premium mb-3 px-3 py-2">Trusted Campus Event Platform</span>
+            <h1 class="mb-3">Discover, Register & Manage College Events with Confidence</h1>
+            <p class="mb-4 fs-5">
+                A professional event registration portal with AI-powered recommendations, QR-based entry passes,
+                analytics, and secure admin reporting — built for real campus operations.
+            </p>
 
-<h3 class="text-success">Recommended Based On Your Past Registrations</h3>
-<p class="text-muted">Using TF-IDF Vectorization + Cosine Similarity Model</p>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="badge rounded-pill text-bg-light">AI Recommendations</span>
+                <span class="badge rounded-pill text-bg-light">QR Pass Verification</span>
+                <span class="badge rounded-pill text-bg-light">Analytics Dashboard</span>
+                <span class="badge rounded-pill text-bg-light">CSV Export</span>
+            </div>
+        </div>
 
-{% if recommendations %}
-<h3 class="mb-3">Recommended For You</h3>
-<div class="row mb-4">
-{% for event in recommendations %}
-<div class="col-md-4">
-    <div class="card border-success shadow">
-        <div class="card-body">
-            <h5>{{ event.title }}</h5>
-            <p>{{ event.category }}</p>
+        <div class="col-lg-4">
+            <div class="card glass shadow-soft">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Quick Access</h5>
+
+                    {% if user.is_authenticated %}
+                        <a href="/my-events/" class="btn btn-brand w-100 mb-2">My Registrations</a>
+
+                        {% if user.is_staff %}
+                            <a href="/analytics/" class="btn btn-soft w-100 mb-2">Analytics Dashboard</a>
+                            <a href="/admin/" class="btn btn-outline-dark w-100">Admin Panel</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="/signup/" class="btn btn-brand w-100 mb-2">Create Account</a>
+                        <a href="/login/" class="btn btn-outline-dark w-100">Login</a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 </div>
-{% endfor %}
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-soft h-100">
+            <div class="card-body">
+                <div class="text-muted small mb-1">Total Events</div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <h3 class="fw-bold mb-0">{{ total_events }}</h3>
+                    <span class="badge badge-soft px-3 py-2">Live</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-soft h-100">
+            <div class="card-body">
+                <div class="text-muted small mb-1">Total Registrations</div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <h3 class="fw-bold mb-0">{{ total_registered }}</h3>
+                    <span class="badge badge-soft px-3 py-2">Updated</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-soft h-100">
+            <div class="card-body">
+                <div class="text-muted small mb-1">Total Seat Capacity</div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <h3 class="fw-bold mb-0">{{ total_capacity }}</h3>
+                    <span class="badge badge-soft px-3 py-2">Campus Scale</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search + Filter -->
+<div class="card shadow-soft mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+                <h5 class="fw-bold mb-0">Find Events</h5>
+                <p class="section-subtitle">Search and filter by category</p>
+            </div>
+            <span class="badge badge-soft px-3 py-2">{{ events|length }} Results</span>
+        </div>
+
+        <form method="get">
+            <div class="row g-2">
+                <div class="col-md-7">
+                    <input type="text" name="q" class="form-control form-control-lg"
+                           placeholder="Search events by title..." value="{{ query }}">
+                </div>
+
+                <div class="col-md-3">
+                    <select name="category" class="form-select form-select-lg">
+                        <option value="">All Categories</option>
+                        {% for value, label in category_choices %}
+                            <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-dark btn-lg">Apply</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- AI Recommendations -->
+{% if user.is_authenticated and recommendations %}
+<div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+            <h3 class="section-title text-success mb-0">Recommended For You</h3>
+            <p class="section-subtitle">Based on your registration history using TF-IDF + Cosine Similarity</p>
+        </div>
+        <span class="badge badge-soft px-3 py-2">AI Powered</span>
+    </div>
+
+    <div class="row">
+        {% for event in recommendations %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-soft border-start border-4 border-success mb-3 h-100">
+                {% if event.image %}
+                    <img src="{{ event.image.url }}" class="card-img-top" height="180" style="object-fit: cover;">
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="fw-bold mb-0">{{ event.title }}</h5>
+                        <span class="badge text-bg-success">{{ event.category|title }}</span>
+                    </div>
+                    <p class="text-muted small mb-2">{{ event.description|truncatechars:90 }}</p>
+                    <p class="small mb-3"><strong>Venue:</strong> {{ event.venue }}</p>
+
+                    <div class="mt-auto">
+                        {% if event.seats_left > 0 %}
+                            <a href="/register/{{ event.id }}/" class="btn btn-success w-100">Register Recommended Event</a>
+                        {% else %}
+                            <button class="btn btn-outline-danger w-100" disabled>Event Full</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endif %}
 
-<h2 class="mb-4">Available Events</h2>
+<!-- Events -->
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div>
+        <h2 class="section-title mb-0">Available Events</h2>
+        <p class="section-subtitle">Explore upcoming events and reserve your seat</p>
+    </div>
+    <span class="badge text-bg-dark fs-6 px-3 py-2">{{ events|length }} Events</span>
+</div>
 
 <div class="row">
 {% for event in events %}
-<div class="col-md-4">
-    <div class="card mb-4 shadow">
-<p><strong>Category:</strong> {{ event.category }}</p>
+<div class="col-md-6 col-lg-4">
+    <div class="card mb-4 shadow-soft h-100">
         {% if event.image %}
-        <img src="{{ event.image.url }}" class="card-img-top" height="200" style="object-fit:cover;">
+        <img src="{{ event.image.url }}" class="card-img-top" height="210" style="object-fit: cover;">
         {% endif %}
 
-        <div class="card-body">
-            <h5 class="card-title">{{ event.title }}</h5>
-            <p>{{ event.description }}</p>
+        <div class="card-body d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="fw-bold mb-0">{{ event.title }}</h5>
+                <span class="badge text-bg-primary">{{ event.category|title }}</span>
+            </div>
 
-            <p><strong>Date:</strong> {{ event.date }}</p>
-            <p><strong>Venue:</strong> {{ event.venue }}</p>
+            <p class="text-muted small mb-3">{{ event.description|truncatechars:110 }}</p>
 
-            <p><strong>Seats Left:</strong> {{ event.seats_left }} / {{ event.capacity }}</p>
+            <div class="small mb-3">
+                <div class="mb-1"><strong>Date:</strong> {{ event.date }}</div>
+                <div class="mb-1"><strong>Venue:</strong> {{ event.venue }}</div>
+                <div class="mb-1"><strong>Capacity:</strong> {{ event.capacity }}</div>
+                <div><strong>Seats Left:</strong> {{ event.seats_left }}</div>
+            </div>
 
-            <div class="progress mb-2">
-                <div class="progress-bar"
-                     role="progressbar"
-                     style="width: {% widthratio event.registered_count event.capacity 100 %}%">
+            <div class="mb-3">
+                <div class="d-flex justify-content-between small mb-1">
+                    <span>Registrations</span>
+                    <span>{{ event.registered_count }}/{{ event.capacity }}</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar"
+                         role="progressbar"
+                         style="width: {% widthratio event.registered_count event.capacity 100 %}%"
+                         aria-valuenow="{{ event.registered_count }}"
+                         aria-valuemin="0"
+                         aria-valuemax="{{ event.capacity }}">
+                    </div>
                 </div>
             </div>
 
-            {% if user.is_authenticated %}
-                {% if event.seats_left > 0 %}
-                    <a href="/register/{{ event.id }}/" class="btn btn-primary w-100">Register</a>
+            <div class="mt-auto">
+                {% if user.is_authenticated %}
+                    {% if event.seats_left > 0 %}
+                        <a href="/register/{{ event.id }}/" class="btn btn-brand w-100">Register Now</a>
+                    {% else %}
+                        <button class="btn btn-outline-danger w-100" disabled>Event Full</button>
+                    {% endif %}
                 {% else %}
-                    <button class="btn btn-danger w-100" disabled>Full</button>
+                    <a href="/login/" class="btn btn-outline-dark w-100">Login to Register</a>
                 {% endif %}
-            {% else %}
-                <p class="text-muted">Login to register</p>
-            {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% empty %}
+<div class="col-12">
+    <div class="card shadow-soft">
+        <div class="card-body text-center py-5">
+            <h4 class="fw-bold">No events found</h4>
+            <p class="text-muted mb-3">Try a different search keyword or category filter.</p>
+            <a href="/" class="btn btn-brand">Reset Filters</a>
         </div>
     </div>
 </div>
 {% endfor %}
+</div>
+
+<!-- Trust / Feature Strip -->
+<div class="card shadow-soft mt-2">
+    <div class="card-body">
+        <div class="row g-3 text-center">
+            <div class="col-md-3">
+                <div class="fw-bold">Secure Authentication</div>
+                <div class="small text-muted">Django auth + protected actions</div>
+            </div>
+            <div class="col-md-3">
+                <div class="fw-bold">AI Recommendations</div>
+                <div class="small text-muted">TF-IDF + cosine similarity</div>
+            </div>
+            <div class="col-md-3">
+                <div class="fw-bold">QR Entry Pass</div>
+                <div class="small text-muted">Unique registration verification</div>
+            </div>
+            <div class="col-md-3">
+                <div class="fw-bold">Admin Analytics</div>
+                <div class="small text-muted">Insights + CSV reporting</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

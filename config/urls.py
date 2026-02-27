@@ -14,6 +14,7 @@ urlpatterns = [
     path('my-events/', views.my_registrations, name='my_registrations'),
     path('analytics/', views.analytics_dashboard, name='analytics'),
     path('qr/<uuid:registration_id>/', views.generate_qr, name='generate_qr'),
+    path('export-csv/', views.export_registrations_csv, name='export_csv'),
 ]
 
 if settings.DEBUG:

@@ -1,19 +1,54 @@
 {% extends "base.html" %}
-
 {% block content %}
 
-<h2>My Registered Events</h2>
-
-{% for reg in registrations %}
-<div class="card mb-3">
-    <div class="card-body">
-        <h5>{{ reg.event.title }}</h5>
-        <p>{{ reg.event.date }} | {{ reg.event.venue }}</p>
-	<a href="/qr/{{ reg.registration_id }}/" class="btn btn-sm btn-dark">View QR</a>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="section-title mb-0">My Registered Events</h2>
+        <p class="section-subtitle">Access your confirmed registrations and QR entry passes</p>
     </div>
+    <span class="badge badge-soft px-3 py-2">{{ registrations|length }} Registered</span>
 </div>
+
+<div class="row">
+{% for reg in registrations %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-soft mb-4 h-100">
+            {% if reg.event.image %}
+            <img src="{{ reg.event.image.url }}" class="card-img-top" height="200" style="object-fit: cover;">
+            {% endif %}
+
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="fw-bold mb-0">{{ reg.event.title }}</h5>
+                    <span class="badge text-bg-primary">{{ reg.event.category|title }}</span>
+                </div>
+
+                <p class="text-muted small mb-3">{{ reg.event.description|truncatechars:90 }}</p>
+
+                <div class="small mb-3">
+                    <div class="mb-1"><strong>Date:</strong> {{ reg.event.date }}</div>
+                    <div class="mb-1"><strong>Venue:</strong> {{ reg.event.venue }}</div>
+                    <div class="mb-1"><strong>Status:</strong> <span class="text-success fw-semibold">Confirmed</span></div>
+                    <div><strong>Registration ID:</strong> {{ reg.registration_id|truncatechars:18 }}</div>
+                </div>
+
+                <div class="mt-auto d-grid gap-2">
+                    <a href="/qr/{{ reg.registration_id }}/" class="btn btn-brand">View QR Pass</a>
+                </div>
+            </div>
+        </div>
+    </div>
 {% empty %}
-<p>You have not registered for any events.</p>
+    <div class="col-12">
+        <div class="card shadow-soft">
+            <div class="card-body text-center py-5">
+                <h4 class="fw-bold">No registrations yet</h4>
+                <p class="text-muted mb-3">You haven’t registered for any events yet.</p>
+                <a href="/" class="btn btn-brand">Browse Events</a>
+            </div>
+        </div>
+    </div>
 {% endfor %}
+</div>
 
 {% endblock %}
