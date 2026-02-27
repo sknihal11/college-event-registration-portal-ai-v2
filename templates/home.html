@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form method="get" class="mb-4">
+    <div class="input-group">
+        <input type="text" name="q" class="form-control" placeholder="Search events...">
+        <button class="btn btn-dark">Search</button>
+    </div>
+</form>
+
+<h3 class="text-success">Recommended Based On Your Past Registrations</h3>
+<p class="text-muted">Using TF-IDF Vectorization + Cosine Similarity Model</p>
+
+{% if recommendations %}
+<h3 class="mb-3">Recommended For You</h3>
+<div class="row mb-4">
+{% for event in recommendations %}
+<div class="col-md-4">
+    <div class="card border-success shadow">
+        <div class="card-body">
+            <h5>{{ event.title }}</h5>
+            <p>{{ event.category }}</p>
+        </div>
+    </div>
+</div>
+{% endfor %}
+</div>
+{% endif %}
+
+<h2 class="mb-4">Available Events</h2>
+
+<div class="row">
+{% for event in events %}
+<div class="col-md-4">
+    <div class="card mb-4 shadow">
+<p><strong>Category:</strong> {{ event.category }}</p>
+        {% if event.image %}
+        <img src="{{ event.image.url }}" class="card-img-top" height="200" style="object-fit:cover;">
+        {% endif %}
+
+        <div class="card-body">
+            <h5 class="card-title">{{ event.title }}</h5>
+            <p>{{ event.description }}</p>
+
+            <p><strong>Date:</strong> {{ event.date }}</p>
+            <p><strong>Venue:</strong> {{ event.venue }}</p>
+
+            <p><strong>Seats Left:</strong> {{ event.seats_left }} / {{ event.capacity }}</p>
+
+            <div class="progress mb-2">
+                <div class="progress-bar"
+                     role="progressbar"
+                     style="width: {% widthratio event.registered_count event.capacity 100 %}%">
+                </div>
+            </div>
+
+            {% if user.is_authenticated %}
+                {% if event.seats_left > 0 %}
+                    <a href="/register/{{ event.id }}/" class="btn btn-primary w-100">Register</a>
+                {% else %}
+                    <button class="btn btn-danger w-100" disabled>Full</button>
+                {% endif %}
+            {% else %}
+                <p class="text-muted">Login to register</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endfor %}
+</div>
+
+{% endblock %}

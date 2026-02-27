@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>My Registered Events</h2>
+
+{% for reg in registrations %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5>{{ reg.event.title }}</h5>
+        <p>{{ reg.event.date }} | {{ reg.event.venue }}</p>
+	<a href="/qr/{{ reg.registration_id }}/" class="btn btn-sm btn-dark">View QR</a>
+    </div>
+</div>
+{% empty %}
+<p>You have not registered for any events.</p>
+{% endfor %}
+
+{% endblock %}
