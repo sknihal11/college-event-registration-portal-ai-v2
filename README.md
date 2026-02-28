@@ -30,9 +30,9 @@ A Django-based AI-powered college event registration and management system.
 
 ```powershell
 
-git clone https://github.com/sknihal11/college-event-registration-portal-ai.git
+git clone https://github.com/sknihal11/college-event-registration-portal-ai-v2.git
 
-cd college-event-registration-portal-ai
+cd college-event-registration-portal-ai-v2
 
 python -m venv venv
 
