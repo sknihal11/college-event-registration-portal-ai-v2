@@ -19,6 +19,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from .forms import StudentProfileForm
 from .models import UserProfile
+from django.http import JsonResponse
 
 def home(request):
     query = request.GET.get('q', '')
@@ -318,3 +319,99 @@ def verify_qr(request):
         'result': result,
         'error': error
     })
+def chatbot_reply(request):
+    msg = request.GET.get('message', '').strip().lower()
+
+    if not msg:
+        return JsonResponse({'reply': "Hi! Ask me about events, registration, QR pass, login, verification, analytics, or admin features."})
+
+    events = Event.objects.all()
+    total_events = events.count()
+
+    # Greetings
+    if any(word in msg for word in ['hello', 'hi', 'hey', 'hii']):
+        reply = "Hello! 👋 I’m your Event Assistant. I can help with registration, QR pass, event search, verification, and analytics access."
+
+    # About portal
+    elif 'what is this' in msg or 'what is this portal' in msg or 'about portal' in msg:
+        reply = "This is a College Event Registration Portal where students can register for events, get QR passes, and staff can verify attendance."
+
+    # Event counts
+    elif 'how many events' in msg or ('total' in msg and 'event' in msg):
+        reply = f"There are currently {total_events} events available."
+
+    # Category-specific queries
+    elif 'workshop' in msg:
+        q = events.filter(category='workshop')
+        reply = f"Available workshops: {', '.join([e.title for e in q[:5]])}." if q.exists() else "There are no workshop events available right now."
+
+    elif 'seminar' in msg:
+        q = events.filter(category='seminar')
+        reply = f"Available seminars: {', '.join([e.title for e in q[:5]])}." if q.exists() else "There are no seminar events available right now."
+
+    elif 'sports' in msg or 'sport' in msg:
+        q = events.filter(category='sports')
+        reply = f"Available sports events: {', '.join([e.title for e in q[:5]])}." if q.exists() else "There are no sports events available right now."
+
+    elif 'cultural' in msg:
+        q = events.filter(category='cultural')
+        reply = f"Available cultural events: {', '.join([e.title for e in q[:5]])}." if q.exists() else "There are no cultural events available right now."
+
+    # Registration flow
+    elif 'how to register' in msg or ('register' in msg and 'event' in msg):
+        reply = "To register: Login → choose an event → click Register → complete student details (first time only) → registration confirmed."
+
+    elif 'can i register without login' in msg or ('without login' in msg and 'register' in msg):
+        reply = "No. You must login first to register for events and receive your QR pass."
+
+    elif 'already registered' in msg or 'why can’t i register again' in msg or 'duplicate registration' in msg:
+        reply = "The system allows only one registration per user per event. Duplicate registrations are blocked automatically."
+
+    elif 'event full' in msg or 'why event full' in msg or 'capacity' in msg or 'seat' in msg:
+        reply = "Each event has a capacity limit. If seats are full, the system blocks registration and shows 'Event Full'."
+
+    # Student profile details
+    elif 'registration number' in msg or 'college email' in msg or 'branch' in msg or 'year of study' in msg:
+        reply = "During first event registration, you’ll be asked to fill student details like college email, registration number, branch, department, and year of study."
+
+    # Login / signup
+    elif 'login' in msg or 'signup' in msg or 'sign up' in msg or 'create account' in msg:
+        reply = "Use Signup to create an account, then Login to register for events, access your QR pass, and view your registrations."
+
+    # QR pass
+    elif 'qr' in msg and ('pass' in msg or 'code' in msg):
+        reply = "After registration, go to 'My Events' and click 'View QR Pass'. Show this QR at event entry for verification."
+
+    elif 'lost qr' in msg or 'lose qr' in msg or 'where is my qr' in msg:
+        reply = "You can reopen your QR pass anytime from the 'My Events' page after logging in."
+
+    # Verification / scanning
+    elif 'verify' in msg or 'scan' in msg:
+        reply = "Staff/Admin can use the Verify QR page to scan QR codes or paste the registration ID manually. Duplicate scans are blocked."
+
+    elif 'already verified' in msg or 'duplicate scan' in msg:
+        reply = "If the same QR is scanned again after successful verification, the system shows 'Already Verified' and prevents duplicate entry."
+
+    # Admin / analytics / CSV
+    elif 'analytics' in msg:
+        reply = "Analytics dashboard is available for Admin/Staff users and shows event and registration statistics."
+
+    elif 'csv' in msg or 'export' in msg:
+        reply = "Admin/Staff can export registration records as CSV from the navigation bar using the Export CSV option."
+
+    elif 'admin' in msg and 'event' in msg:
+        reply = "Admins can create, edit, and manage events using the Django Admin panel."
+
+    # Search / filter
+    elif 'find' in msg or 'search' in msg or 'filter' in msg:
+        reply = "Use the search box and category filter on the home page to quickly find events."
+
+    # Email confirmation
+    elif 'email' in msg:
+        reply = "A confirmation email is generated when you register for an event. In demo mode, it appears in the server terminal."
+
+    # Fallback
+    else:
+        reply = "im a Basic chatbot where I can help with login/signup, event registration, student details form, QR pass, QR verification, analytics, CSV export, and event search.Please ask questions related to these only"
+
+    return JsonResponse({'reply': reply})

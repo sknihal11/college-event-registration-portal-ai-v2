@@ -700,4 +700,189 @@ select.form-ctrl option { background:var(--surface2); }
   </div>
 
 </div>
+
+<!-- Chatbot Widget (Home page only) -->
+<style>
+  #chatbot-widget {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 9999;
+    font-family: inherit;
+  }
+  #chatbot-toggle {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    background: #0d6efd;
+    color: white;
+  }
+  #chatbot-box {
+    width: 320px;
+    max-width: calc(100vw - 30px);
+    height: 420px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.18);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    right: 0;
+    bottom: 70px;
+    border: 1px solid #e5e7eb;
+  }
+  .chatbot-hidden { display: none !important; }
+  #chatbot-header {
+    background: #111827;
+    color: #fff;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 600;
+  }
+  #chatbot-header button {
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  #chatbot-messages {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .bot-msg, .user-msg {
+    max-width: 85%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .bot-msg {
+    background: #e5e7eb;
+    color: #111827;
+    align-self: flex-start;
+  }
+  .user-msg {
+    background: #0d6efd;
+    color: #fff;
+    align-self: flex-end;
+  }
+  #chatbot-input-row {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    border-top: 1px solid #e5e7eb;
+    background: #fff;
+  }
+  #chatbot-input {
+    flex: 1;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 10px;
+    outline: none;
+    font-size: 14px;
+  }
+  #chatbot-send {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #0d6efd;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+  }
+</style>
+
+<div id="chatbot-widget">
+  <button id="chatbot-toggle" type="button" title="Open chatbot">💬</button>
+
+  <div id="chatbot-box" class="chatbot-hidden">
+    <div id="chatbot-header">
+      <span>Event Assistant</span>
+      <button id="chatbot-close" type="button">✕</button>
+    </div>
+
+    <div id="chatbot-messages">
+      <div class="bot-msg">Hi! 👋 Ask me about registration, QR pass, login, events, or analytics.</div>
+    </div>
+
+    <div id="chatbot-input-row">
+      <input type="text" id="chatbot-input" placeholder="Type your question..." />
+      <button id="chatbot-send" type="button">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const toggleBtn = document.getElementById("chatbot-toggle");
+  const closeBtn = document.getElementById("chatbot-close");
+  const chatBox = document.getElementById("chatbot-box");
+  const sendBtn = document.getElementById("chatbot-send");
+  const input = document.getElementById("chatbot-input");
+  const messages = document.getElementById("chatbot-messages");
+
+  if (!toggleBtn || !chatBox || !sendBtn || !input || !messages) {
+    console.log("Chatbot elements not found");
+    return;
+  }
+
+  function appendMessage(text, type) {
+    const div = document.createElement("div");
+    div.className = type === "user" ? "user-msg" : "bot-msg";
+    div.textContent = text;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+
+    appendMessage(text, "user");
+    input.value = "";
+
+    try {
+      const res = await fetch(`/chatbot/?message=${encodeURIComponent(text)}`);
+      const data = await res.json();
+      appendMessage(data.reply || "Sorry, I couldn't understand that.", "bot");
+    } catch (err) {
+      appendMessage("Chatbot is temporarily unavailable.", "bot");
+      console.error("Chatbot fetch error:", err);
+    }
+  }
+
+  toggleBtn.addEventListener("click", function () {
+    chatBox.classList.toggle("chatbot-hidden");
+    if (!chatBox.classList.contains("chatbot-hidden")) {
+      input.focus();
+    }
+  });
+
+  if (closeBtn) {
+    closeBtn.addEventListener("click", function () {
+      chatBox.classList.add("chatbot-hidden");
+    });
+  }
+
+  sendBtn.addEventListener("click", sendMessage);
+
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") sendMessage();
+  });
+});
+</script>
+
 {% endblock %}

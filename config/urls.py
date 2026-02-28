@@ -16,6 +16,7 @@ urlpatterns = [
     path('qr/<uuid:registration_id>/', views.generate_qr, name='generate_qr'),
     path('export-csv/', views.export_registrations_csv, name='export_csv'),
     path('verify-qr/', views.verify_qr, name='verify_qr'),
+    path('chatbot/', views.chatbot_reply, name='chatbot_reply'),
 ]
 
 if settings.DEBUG:

@@ -48,7 +48,7 @@ python manage.py createsuperuser
 
 python manage.py runserver
 
-
+pip install django pillow scikit-learn matplotlib qrcode(OPTIONAL-RUN ONLY IF YOU GET MODULE NOT PRESENT ERROR,REQUIREMENTS.TXT HAS ALL THE REQUIRED MODULES)
 
 URLs
 
