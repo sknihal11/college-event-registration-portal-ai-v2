@@ -52,11 +52,26 @@ class Registration(models.Model):
 
 
 class UserProfile(models.Model):
+    YEAR_CHOICES = [
+        (1, '1st Year'),
+        (2, '2nd Year'),
+        (3, '3rd Year'),
+        (4, '4th Year'),
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     interests = models.CharField(
         max_length=200,
+        blank=True,
+        default="",
         help_text="Comma separated interests (e.g., seminar, sports)"
     )
+
+    college_email = models.EmailField(blank=True, null=True)
+    registration_number = models.CharField(max_length=30, blank=True, null=True, unique=True)
+    branch = models.CharField(max_length=100, blank=True, null=True)
+    department = models.CharField(max_length=100, blank=True, null=True)
+    year_of_study = models.IntegerField(choices=YEAR_CHOICES, blank=True, null=True)
 
     def __str__(self):
         return self.user.username

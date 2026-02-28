@@ -17,4 +17,13 @@ class RegistrationAdmin(admin.ModelAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'interests')
+    list_display = (
+        'user',
+        'college_email',
+        'registration_number',
+        'branch',
+        'department',
+        'year_of_study',
+    )
+    search_fields = ('user__username', 'college_email', 'registration_number', 'branch', 'department')
+    list_filter = ('year_of_study', 'branch', 'department')

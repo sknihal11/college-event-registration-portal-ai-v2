@@ -1,259 +1,703 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- Hero -->
-<div class="hero mb-4">
-    <div class="row align-items-center g-4">
-        <div class="col-lg-8">
-            <span class="badge badge-premium mb-3 px-3 py-2">Trusted Campus Event Platform</span>
-            <h1 class="mb-3">Discover, Register & Manage College Events with Confidence</h1>
-            <p class="mb-4 fs-5">
-                A professional event registration portal with AI-powered recommendations, QR-based entry passes,
-                analytics, and secure admin reporting — built for real campus operations.
-            </p>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap');
 
-            <div class="d-flex flex-wrap gap-2">
-                <span class="badge rounded-pill text-bg-light">AI Recommendations</span>
-                <span class="badge rounded-pill text-bg-light">QR Pass Verification</span>
-                <span class="badge rounded-pill text-bg-light">Analytics Dashboard</span>
-                <span class="badge rounded-pill text-bg-light">CSV Export</span>
-            </div>
-        </div>
+:root {
+  --bg:        #04050f;
+  --surface:   #0b0d1e;
+  --surface2:  #111328;
+  --rim:       #1e2140;
+  --rim2:      #2a2f5a;
+  --violet:    #7c5cfc;
+  --violet-g:  #a87cff;
+  --rose:      #ff4e8e;
+  --amber:     #ffb347;
+  --sky:       #38d9ff;
+  --mint:      #3dffa8;
+  --text:      #eef0ff;
+  --text2:     #8a90b8;
+  --muted:     #4a5080;
+  --r:         14px;
+  --r-lg:      22px;
+}
 
-        <div class="col-lg-4">
-            <div class="card glass shadow-soft">
-                <div class="card-body">
-                    <h5 class="fw-bold mb-3">Quick Access</h5>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 
-                    {% if user.is_authenticated %}
-                        <a href="/my-events/" class="btn btn-brand w-100 mb-2">My Registrations</a>
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-                        {% if user.is_staff %}
-                            <a href="/analytics/" class="btn btn-soft w-100 mb-2">Analytics Dashboard</a>
-                            <a href="/admin/" class="btn btn-outline-dark w-100">Admin Panel</a>
-                        {% endif %}
-                    {% else %}
-                        <a href="/signup/" class="btn btn-brand w-100 mb-2">Create Account</a>
-                        <a href="/login/" class="btn btn-outline-dark w-100">Login</a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
+/* ── ENVIRONMENT ── */
+.starfield {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.65) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 55%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 55% 10%, rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 80%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 40%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(2px 2px at 15% 75%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 92% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 42% 90%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 65%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 78% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 45%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(2px 2px at 5% 90%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 50%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 95% 70%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 38% 25%, rgba(255,255,255,0.6) 0%, transparent 100%);
+}
+
+.aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.aura {
+  position: absolute; border-radius: 50%; mix-blend-mode: screen;
+  filter: blur(90px);
+  animation: auraFloat 20s ease-in-out infinite;
+}
+.aura-1 { width:600px; height:600px; background:radial-gradient(circle,#7c5cfc 0%,transparent 70%); top:-200px; left:-100px; animation-delay:0s;   opacity:.18; }
+.aura-2 { width:500px; height:500px; background:radial-gradient(circle,#ff4e8e 0%,transparent 70%); bottom:-100px; right:-80px; animation-delay:-7s;  opacity:.14; }
+.aura-3 { width:400px; height:400px; background:radial-gradient(circle,#38d9ff 0%,transparent 70%); top:40%; left:60%; animation-delay:-14s; opacity:.12; }
+.aura-4 { width:300px; height:300px; background:radial-gradient(circle,#3dffa8 0%,transparent 70%); top:60%; left:10%; animation-delay:-5s;  opacity:.10; }
+@keyframes auraFloat {
+  0%   { transform:translate(0,0) scale(1); }
+  33%  { transform:translate(40px,-30px) scale(1.08); }
+  66%  { transform:translate(-20px,50px) scale(0.95); }
+  100% { transform:translate(0,0) scale(1); }
+}
+
+.particles { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.particle {
+  position:absolute; border-radius:50%;
+  animation:particleRise linear infinite; opacity:0;
+}
+.particle:nth-child(1)  { width:3px;height:3px;background:var(--violet);  left:10%; animation-duration:12s;animation-delay:0s;   }
+.particle:nth-child(2)  { width:2px;height:2px;background:var(--rose);    left:25%; animation-duration:15s;animation-delay:-4s;  }
+.particle:nth-child(3)  { width:4px;height:4px;background:var(--sky);     left:40%; animation-duration:10s;animation-delay:-8s;  }
+.particle:nth-child(4)  { width:2px;height:2px;background:var(--mint);    left:60%; animation-duration:18s;animation-delay:-2s;  }
+.particle:nth-child(5)  { width:3px;height:3px;background:var(--amber);   left:75%; animation-duration:13s;animation-delay:-6s;  }
+.particle:nth-child(6)  { width:2px;height:2px;background:var(--violet-g);left:88%; animation-duration:16s;animation-delay:-10s; }
+.particle:nth-child(7)  { width:3px;height:3px;background:var(--sky);     left:5%;  animation-duration:11s;animation-delay:-3s;  }
+.particle:nth-child(8)  { width:2px;height:2px;background:var(--rose);    left:52%; animation-duration:14s;animation-delay:-9s;  }
+.particle:nth-child(9)  { width:4px;height:4px;background:var(--mint);    left:33%; animation-duration:17s;animation-delay:-1s;  }
+.particle:nth-child(10) { width:2px;height:2px;background:var(--amber);   left:70%; animation-duration:9s; animation-delay:-5s;  }
+@keyframes particleRise {
+  0%   { transform:translateY(100vh) scale(0); opacity:0; }
+  10%  { opacity:.8; }
+  90%  { opacity:.4; }
+  100% { transform:translateY(-10vh) scale(1.5); opacity:0; }
+}
+
+.scanline {
+  position:fixed; top:-2px; left:0; right:0; height:2px;
+  z-index:1; pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--violet),var(--sky),var(--mint),transparent);
+  opacity:.3; animation:scan 9s linear infinite;
+  box-shadow:0 0 18px var(--violet),0 0 36px var(--sky);
+}
+@keyframes scan { from{top:-2px;} to{top:100vh;} }
+
+body::after {
+  content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  background-size:200px; opacity:.45;
+}
+
+/* ── LAYOUT ── */
+.page-wrap {
+  position:relative; z-index:2;
+  max-width:1200px; margin:0 auto;
+  padding:2rem 1.5rem 5rem;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1.2rem 0 2.5rem;
+  border-bottom:1px solid var(--rim);
+  margin-bottom:4rem;
+  animation:fadeDown .7s ease both;
+}
+.brand {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.5rem; letter-spacing:.15em;
+  color:var(--text); text-decoration:none;
+  display:flex; align-items:center; gap:.6rem;
+}
+.brand-dot {
+  width:10px; height:10px; border-radius:50%;
+  background:var(--violet);
+  box-shadow:0 0 0 3px rgba(124,92,252,.25),0 0 16px var(--violet);
+  animation:pulseDot 2s ease infinite;
+}
+@keyframes pulseDot {
+  0%,100% { box-shadow:0 0 0 3px rgba(124,92,252,.25),0 0 16px var(--violet); }
+  50%      { box-shadow:0 0 0 7px rgba(124,92,252,.08),0 0 30px var(--violet); }
+}
+.topbar-nav { display:flex; gap:.5rem; flex-wrap:wrap; }
+
+/* ── BUTTONS ── */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:.6rem 1.4rem; border-radius:var(--r);
+  border:none; cursor:pointer;
+  font-family:'DM Sans',sans-serif; font-size:.875rem; font-weight:500;
+  text-decoration:none; transition:all .22s ease; white-space:nowrap;
+  position:relative; overflow:hidden;
+}
+.btn::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);
+  opacity:0; transition:opacity .2s;
+}
+.btn:hover::before { opacity:1; }
+.btn-primary {
+  background:linear-gradient(135deg,var(--violet),var(--rose));
+  color:#fff;
+  box-shadow:0 0 24px rgba(124,92,252,.35),inset 0 1px 0 rgba(255,255,255,.15);
+}
+.btn-primary:hover {
+  transform:translateY(-2px);
+  box-shadow:0 4px 40px rgba(124,92,252,.55),inset 0 1px 0 rgba(255,255,255,.15);
+}
+.btn-ghost {
+  background:transparent; color:var(--text2);
+  border:1px solid var(--rim2);
+}
+.btn-ghost:hover { border-color:var(--violet); color:var(--violet-g); }
+.btn-surface {
+  background:var(--surface2); color:var(--text);
+  border:1px solid var(--rim2);
+}
+.btn-surface:hover { border-color:var(--violet); }
+.btn-success {
+  background:rgba(61,255,168,.12); color:var(--mint);
+  border:1px solid rgba(61,255,168,.25);
+}
+.btn-success:hover { background:rgba(61,255,168,.22); transform:translateY(-1px); }
+.btn-danger {
+  background:rgba(255,78,142,.08); color:var(--rose);
+  border:1px solid rgba(255,78,142,.2); cursor:not-allowed;
+}
+.btn-w { width:100%; }
+.btn-lg { padding:.78rem 1.6rem; font-size:.95rem; }
+
+/* ── HERO ── */
+.hero-wrap {
+  display:grid; grid-template-columns:1fr 310px; gap:3rem;
+  align-items:start; margin-bottom:4rem;
+  animation:fadeUp .7s ease both .05s;
+}
+@media(max-width:768px){.hero-wrap{grid-template-columns:1fr;}}
+
+.hero-badge {
+  display:inline-flex; align-items:center; gap:.5rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.68rem; letter-spacing:.15em; text-transform:uppercase;
+  background:rgba(124,92,252,.12); color:var(--violet-g);
+  border:1px solid rgba(124,92,252,.3);
+  padding:.35rem .9rem; border-radius:100px; margin-bottom:1.5rem;
+}
+.hero-badge::before { content:'◉'; font-size:.6rem; animation:pulseDot 2s ease infinite; }
+
+.hero-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(3.5rem,7.5vw,6.5rem);
+  line-height:.93; letter-spacing:.02em; color:var(--text);
+  margin-bottom:1.5rem;
+}
+.hero-title .outline {
+  color:transparent; -webkit-text-stroke:1.5px var(--violet-g);
+  text-shadow:0 0 40px rgba(168,124,255,.3);
+}
+.hero-title .grad {
+  background:linear-gradient(90deg,var(--rose),var(--amber));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.hero-desc {
+  color:var(--text2); font-size:1.05rem; font-weight:300;
+  max-width:500px; margin-bottom:2rem;
+}
+.pill-row { display:flex; flex-wrap:wrap; gap:.5rem; }
+.pill {
+  font-family:'JetBrains Mono',monospace; font-size:.68rem; letter-spacing:.07em;
+  background:var(--surface2); border:1px solid var(--rim2);
+  color:var(--muted); padding:.35rem .9rem; border-radius:100px;
+  transition:all .2s;
+}
+.pill:hover { border-color:var(--violet); color:var(--violet-g); }
+
+/* Quick Access */
+.qa-card {
+  background:var(--surface); border:1px solid var(--rim2);
+  border-radius:var(--r-lg); padding:1.8rem;
+  position:relative; overflow:hidden;
+  animation:fadeUp .7s ease both .15s;
+}
+.qa-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,var(--violet),var(--rose),var(--amber));
+}
+.qa-card::after {
+  content:''; position:absolute; top:-80px; right:-60px;
+  width:200px; height:200px; border-radius:50%;
+  background:radial-gradient(circle,rgba(124,92,252,.15) 0%,transparent 70%);
+  pointer-events:none;
+}
+.qa-card h5 {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.15rem; letter-spacing:.1em; color:var(--text); margin-bottom:1.2rem;
+}
+.qa-divider { border:none; border-top:1px solid var(--rim); margin:1.2rem 0; }
+.qa-stats { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+.qs-label {
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--muted); display:block; margin-bottom:.2rem;
+}
+.qs-val {
+  font-family:'Bebas Neue',sans-serif; font-size:1.8rem; line-height:1;
+}
+.qs-val.violet { color:var(--violet-g); }
+.qs-val.rose { color:var(--rose); }
+
+/* ── SEARCH ── */
+.search-panel {
+  background:var(--surface); border:1px solid var(--rim2);
+  border-radius:var(--r-lg); padding:1.8rem;
+  margin-bottom:4rem; position:relative; overflow:hidden;
+  animation:fadeUp .7s ease both .2s;
+}
+.search-panel::after {
+  content:''; position:absolute; bottom:-60px; right:-40px;
+  width:180px; height:180px; border-radius:50%;
+  background:radial-gradient(circle,rgba(56,217,255,.1) 0%,transparent 70%);
+  pointer-events:none;
+}
+.panel-head {
+  display:flex; justify-content:space-between; align-items:flex-end;
+  margin-bottom:1.2rem; flex-wrap:wrap; gap:.8rem;
+}
+.sec-eyebrow {
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:.2rem;
+}
+.sec-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:2rem; letter-spacing:.05em; color:var(--text); line-height:1;
+}
+.count-pill {
+  font-family:'JetBrains Mono',monospace; font-size:.7rem;
+  background:var(--surface2); border:1px solid var(--rim2);
+  color:var(--text2); padding:.35rem .9rem; border-radius:100px;
+}
+.search-row { display:grid; grid-template-columns:1fr 200px 110px; gap:.75rem; }
+@media(max-width:640px){.search-row{grid-template-columns:1fr;}}
+.form-ctrl {
+  background:var(--surface2); border:1px solid var(--rim2);
+  border-radius:var(--r); color:var(--text);
+  padding:.72rem 1rem; font-family:'DM Sans',sans-serif; font-size:.9rem;
+  width:100%; outline:none; transition:border .2s,box-shadow .2s;
+}
+.form-ctrl:focus { border-color:var(--violet); box-shadow:0 0 0 3px rgba(124,92,252,.15); }
+.form-ctrl::placeholder { color:var(--muted); }
+select.form-ctrl option { background:var(--surface2); }
+
+/* ── SECTION HEADS ── */
+.section-head {
+  display:flex; justify-content:space-between; align-items:flex-end;
+  margin-bottom:1.8rem; flex-wrap:wrap; gap:.8rem;
+}
+
+/* ── AI REC ── */
+.rec-section { margin-bottom:4rem; animation:fadeUp .7s ease both .25s; }
+.ai-badge {
+  font-family:'JetBrains Mono',monospace; font-size:.65rem;
+  letter-spacing:.12em; text-transform:uppercase;
+  background:rgba(61,255,168,.1); color:var(--mint);
+  border:1px solid rgba(61,255,168,.25);
+  padding:.4rem .9rem; border-radius:100px;
+  display:flex; align-items:center; gap:.4rem;
+}
+.ai-dot {
+  width:6px; height:6px; border-radius:50%; background:var(--mint);
+  animation:pulseGreen 1.5s ease infinite;
+}
+@keyframes pulseGreen {
+  0%,100% { box-shadow:0 0 0 2px rgba(61,255,168,.2); }
+  50%      { box-shadow:0 0 0 5px rgba(61,255,168,.05); }
+}
+
+/* ── EVENT CARDS ── */
+.event-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  gap:1.5rem;
+}
+@media(max-width:480px){.event-grid{grid-template-columns:1fr;}}
+.event-card {
+  background:var(--surface); border:1px solid var(--rim2);
+  border-radius:var(--r-lg); overflow:hidden;
+  display:flex; flex-direction:column;
+  transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease;
+  animation:fadeUp .55s ease both;
+  position:relative;
+}
+.event-card::after {
+  content:''; position:absolute; inset:0; border-radius:var(--r-lg);
+  background:linear-gradient(135deg,rgba(124,92,252,.04) 0%,transparent 60%);
+  pointer-events:none;
+}
+.event-card:hover {
+  transform:translateY(-5px);
+  border-color:rgba(124,92,252,.5);
+  box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 0 1px rgba(124,92,252,.15),0 0 40px rgba(124,92,252,.08);
+}
+.event-card.rec { border-color:rgba(61,255,168,.2); }
+.event-card.rec:hover {
+  border-color:rgba(61,255,168,.4);
+  box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 0 1px rgba(61,255,168,.12),0 0 40px rgba(61,255,168,.06);
+}
+.event-grid .event-card:nth-child(1){animation-delay:.05s;}
+.event-grid .event-card:nth-child(2){animation-delay:.10s;}
+.event-grid .event-card:nth-child(3){animation-delay:.15s;}
+.event-grid .event-card:nth-child(4){animation-delay:.20s;}
+.event-grid .event-card:nth-child(5){animation-delay:.25s;}
+.event-grid .event-card:nth-child(6){animation-delay:.30s;}
+
+.event-img { width:100%; height:185px; object-fit:cover; display:block; }
+.event-img-placeholder {
+  width:100%; height:130px;
+  background:linear-gradient(135deg,var(--surface2) 0%,var(--rim) 100%);
+  display:flex; align-items:center; justify-content:center;
+  position:relative; overflow:hidden;
+}
+.event-img-placeholder::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(124,92,252,.12),rgba(255,78,142,.08));
+}
+.event-img-placeholder span {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:2.8rem; color:var(--rim2); letter-spacing:.1em; position:relative;
+}
+.event-body { padding:1.4rem; display:flex; flex-direction:column; flex:1; }
+.event-top {
+  display:flex; justify-content:space-between;
+  align-items:flex-start; gap:.5rem; margin-bottom:.7rem;
+}
+.event-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.35rem; letter-spacing:.04em; color:var(--text); line-height:1.1;
+}
+.cat-badge {
+  font-family:'JetBrains Mono',monospace;
+  font-size:.58rem; letter-spacing:.1em; text-transform:uppercase;
+  padding:.25rem .6rem; border-radius:5px; white-space:nowrap;
+  background:rgba(124,92,252,.12); color:var(--violet-g);
+  border:1px solid rgba(124,92,252,.25);
+}
+.cat-badge.green {
+  background:rgba(61,255,168,.1); color:var(--mint);
+  border-color:rgba(61,255,168,.22);
+}
+.event-desc { color:var(--text2); font-size:.85rem; font-weight:300; margin-bottom:1.1rem; }
+.event-meta { display:grid; grid-template-columns:1fr 1fr; gap:.5rem 1rem; margin-bottom:1.1rem; }
+.meta-label {
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--muted); display:block; margin-bottom:.1rem;
+}
+.meta-val { font-size:.8rem; color:var(--text); }
+
+/* Progress */
+.prog-wrap { margin-bottom:1.3rem; }
+.prog-head { display:flex; justify-content:space-between; font-size:.73rem; color:var(--muted); margin-bottom:.45rem; }
+.prog-track { background:var(--rim); border-radius:100px; height:4px; overflow:hidden; }
+.prog-fill {
+  height:100%;
+  background:linear-gradient(90deg,var(--violet),var(--rose));
+  border-radius:100px; position:relative;
+  transition:width 1s ease;
+}
+.prog-fill::after {
+  content:''; position:absolute; right:0; top:50%; transform:translateY(-50%);
+  width:8px; height:8px; border-radius:50%;
+  background:var(--rose); box-shadow:0 0 8px var(--rose);
+}
+.mt-auto { margin-top:auto; }
+
+/* Empty */
+.empty-state {
+  grid-column:1/-1; background:var(--surface);
+  border:1px dashed var(--rim2); border-radius:var(--r-lg);
+  padding:4rem 2rem; text-align:center;
+}
+.empty-state h4 { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; margin-bottom:.6rem; }
+.empty-state p { color:var(--muted); margin-bottom:1.5rem; }
+
+/* Feature strip */
+.feat-strip {
+  margin-top:4rem; background:var(--surface);
+  border:1px solid var(--rim2); border-radius:var(--r-lg);
+  padding:2rem; position:relative; overflow:hidden;
+  animation:fadeUp .7s ease both .4s;
+}
+.feat-strip::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,var(--violet),var(--sky),var(--mint),transparent);
+}
+.feat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; text-align:center; }
+@media(max-width:640px){.feat-grid{grid-template-columns:repeat(2,1fr);}}
+.feat-icon { font-size:1.6rem; margin-bottom:.5rem; display:block; }
+.feat-name { font-weight:500; font-size:.85rem; color:var(--text); display:block; margin-bottom:.2rem; }
+.feat-sub { font-size:.73rem; color:var(--muted); }
+
+@keyframes fadeUp   { from{opacity:0;transform:translateY(22px);}  to{opacity:1;transform:translateY(0);} }
+@keyframes fadeDown { from{opacity:0;transform:translateY(-12px);} to{opacity:1;transform:translateY(0);} }
+</style>
+
+<!-- Environment Layers -->
+<div class="starfield"></div>
+<div class="aurora">
+  <div class="aura aura-1"></div>
+  <div class="aura aura-2"></div>
+  <div class="aura aura-3"></div>
+  <div class="aura aura-4"></div>
 </div>
-
-<!-- Stats -->
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="card shadow-soft h-100">
-            <div class="card-body">
-                <div class="text-muted small mb-1">Total Events</div>
-                <div class="d-flex align-items-center justify-content-between">
-                    <h3 class="fw-bold mb-0">{{ total_events }}</h3>
-                    <span class="badge badge-soft px-3 py-2">Live</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card shadow-soft h-100">
-            <div class="card-body">
-                <div class="text-muted small mb-1">Total Registrations</div>
-                <div class="d-flex align-items-center justify-content-between">
-                    <h3 class="fw-bold mb-0">{{ total_registered }}</h3>
-                    <span class="badge badge-soft px-3 py-2">Updated</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card shadow-soft h-100">
-            <div class="card-body">
-                <div class="text-muted small mb-1">Total Seat Capacity</div>
-                <div class="d-flex align-items-center justify-content-between">
-                    <h3 class="fw-bold mb-0">{{ total_capacity }}</h3>
-                    <span class="badge badge-soft px-3 py-2">Campus Scale</span>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="particles">
+  <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div>
 </div>
+<div class="scanline"></div>
 
-<!-- Search + Filter -->
-<div class="card shadow-soft mb-4">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-            <div>
-                <h5 class="fw-bold mb-0">Find Events</h5>
-                <p class="section-subtitle">Search and filter by category</p>
-            </div>
-            <span class="badge badge-soft px-3 py-2">{{ events|length }} Results</span>
-        </div>
+<div class="page-wrap">
 
-        <form method="get">
-            <div class="row g-2">
-                <div class="col-md-7">
-                    <input type="text" name="q" class="form-control form-control-lg"
-                           placeholder="Search events by title..." value="{{ query }}">
-                </div>
-
-                <div class="col-md-3">
-                    <select name="category" class="form-select form-select-lg">
-                        <option value="">All Categories</option>
-                        {% for value, label in category_choices %}
-                            <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>
-                                {{ label }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="col-md-2 d-grid">
-                    <button class="btn btn-dark btn-lg">Apply</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- AI Recommendations -->
-{% if user.is_authenticated and recommendations %}
-<div class="mb-4">
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <div>
-            <h3 class="section-title text-success mb-0">Recommended For You</h3>
-            <p class="section-subtitle">Based on your registration history using TF-IDF + Cosine Similarity</p>
-        </div>
-        <span class="badge badge-soft px-3 py-2">AI Powered</span>
-    </div>
-
-    <div class="row">
-        {% for event in recommendations %}
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-soft border-start border-4 border-success mb-3 h-100">
-                {% if event.image %}
-                    <img src="{{ event.image.url }}" class="card-img-top" height="180" style="object-fit: cover;">
-                {% endif %}
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="fw-bold mb-0">{{ event.title }}</h5>
-                        <span class="badge text-bg-success">{{ event.category|title }}</span>
-                    </div>
-                    <p class="text-muted small mb-2">{{ event.description|truncatechars:90 }}</p>
-                    <p class="small mb-3"><strong>Venue:</strong> {{ event.venue }}</p>
-
-                    <div class="mt-auto">
-                        {% if event.seats_left > 0 %}
-                            <a href="/register/{{ event.id }}/" class="btn btn-success w-100">Register Recommended Event</a>
-                        {% else %}
-                            <button class="btn btn-outline-danger w-100" disabled>Event Full</button>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
-<!-- Events -->
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <div>
-        <h2 class="section-title mb-0">Available Events</h2>
-        <p class="section-subtitle">Explore upcoming events and reserve your seat</p>
-    </div>
-    <span class="badge text-bg-dark fs-6 px-3 py-2">{{ events|length }} Events</span>
-</div>
-
-<div class="row">
-{% for event in events %}
-<div class="col-md-6 col-lg-4">
-    <div class="card mb-4 shadow-soft h-100">
-        {% if event.image %}
-        <img src="{{ event.image.url }}" class="card-img-top" height="210" style="object-fit: cover;">
+  <!-- TOPBAR -->
+  <nav class="topbar">
+    <a href="/" class="brand"><div class="brand-dot"></div>CAMPUS OS</a>
+    <div class="topbar-nav">
+      {% if user.is_authenticated %}
+        <a href="/my-events/" class="btn btn-ghost">My Events</a>
+        {% if user.is_staff %}
+          <a href="/analytics/" class="btn btn-ghost">Analytics</a>
+          <a href="/admin/" class="btn btn-primary">Admin ↗</a>
         {% endif %}
-
-        <div class="card-body d-flex flex-column">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <h5 class="fw-bold mb-0">{{ event.title }}</h5>
-                <span class="badge text-bg-primary">{{ event.category|title }}</span>
-            </div>
-
-            <p class="text-muted small mb-3">{{ event.description|truncatechars:110 }}</p>
-
-            <div class="small mb-3">
-                <div class="mb-1"><strong>Date:</strong> {{ event.date }}</div>
-                <div class="mb-1"><strong>Venue:</strong> {{ event.venue }}</div>
-                <div class="mb-1"><strong>Capacity:</strong> {{ event.capacity }}</div>
-                <div><strong>Seats Left:</strong> {{ event.seats_left }}</div>
-            </div>
-
-            <div class="mb-3">
-                <div class="d-flex justify-content-between small mb-1">
-                    <span>Registrations</span>
-                    <span>{{ event.registered_count }}/{{ event.capacity }}</span>
-                </div>
-                <div class="progress">
-                    <div class="progress-bar"
-                         role="progressbar"
-                         style="width: {% widthratio event.registered_count event.capacity 100 %}%"
-                         aria-valuenow="{{ event.registered_count }}"
-                         aria-valuemin="0"
-                         aria-valuemax="{{ event.capacity }}">
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-auto">
-                {% if user.is_authenticated %}
-                    {% if event.seats_left > 0 %}
-                        <a href="/register/{{ event.id }}/" class="btn btn-brand w-100">Register Now</a>
-                    {% else %}
-                        <button class="btn btn-outline-danger w-100" disabled>Event Full</button>
-                    {% endif %}
-                {% else %}
-                    <a href="/login/" class="btn btn-outline-dark w-100">Login to Register</a>
-                {% endif %}
-            </div>
-        </div>
+      {% else %}
+        <a href="/login/" class="btn btn-ghost">Login</a>
+        <a href="/signup/" class="btn btn-primary">Sign Up →</a>
+      {% endif %}
     </div>
-</div>
-{% empty %}
-<div class="col-12">
-    <div class="card shadow-soft">
-        <div class="card-body text-center py-5">
-            <h4 class="fw-bold">No events found</h4>
-            <p class="text-muted mb-3">Try a different search keyword or category filter.</p>
-            <a href="/" class="btn btn-brand">Reset Filters</a>
-        </div>
-    </div>
-</div>
-{% endfor %}
-</div>
+  </nav>
 
-<!-- Trust / Feature Strip -->
-<div class="card shadow-soft mt-2">
-    <div class="card-body">
-        <div class="row g-3 text-center">
-            <div class="col-md-3">
-                <div class="fw-bold">Secure Authentication</div>
-                <div class="small text-muted">Django auth + protected actions</div>
-            </div>
-            <div class="col-md-3">
-                <div class="fw-bold">AI Recommendations</div>
-                <div class="small text-muted">TF-IDF + cosine similarity</div>
-            </div>
-            <div class="col-md-3">
-                <div class="fw-bold">QR Entry Pass</div>
-                <div class="small text-muted">Unique registration verification</div>
-            </div>
-            <div class="col-md-3">
-                <div class="fw-bold">Admin Analytics</div>
-                <div class="small text-muted">Insights + CSV reporting</div>
-            </div>
-        </div>
+  <!-- HERO -->
+  <div class="hero-wrap">
+    <div>
+      <div class="hero-badge">Trusted Campus Event Platform</div>
+      <h1 class="hero-title">
+        Discover<br>
+        <span class="outline">Register</span><br>
+        <span class="grad">&amp; Attend</span>
+      </h1>
+      <p class="hero-desc">
+        AI-powered recommendations, QR entry passes, real-time analytics — professional event management built for how campuses actually work.
+      </p>
+      <div class="pill-row">
+        <span class="pill">AI Recommendations</span>
+        <span class="pill">QR Pass Verification</span>
+        <span class="pill">Analytics Dashboard</span>
+        <span class="pill">CSV Export</span>
+      </div>
     </div>
-</div>
 
+    <div class="qa-card">
+      <h5>Quick Access</h5>
+      {% if user.is_authenticated %}
+        <a href="/my-events/" class="btn btn-primary btn-w btn-lg">My Registrations →</a>
+        {% if user.is_staff %}
+          <a href="/analytics/" class="btn btn-surface btn-w" style="margin-top:.6rem;">Analytics Dashboard</a>
+          <a href="/admin/" class="btn btn-ghost btn-w" style="margin-top:.5rem;">Admin Panel</a>
+        {% endif %}
+      {% else %}
+        <a href="/signup/" class="btn btn-primary btn-w btn-lg">Create Account →</a>
+        <a href="/login/" class="btn btn-ghost btn-w" style="margin-top:.6rem;">Login</a>
+      {% endif %}
+      <hr class="qa-divider">
+      <div class="qa-stats">
+        <div>
+          <span class="qs-label">Events</span>
+          <div class="qs-val violet">{{ events|length }}</div>
+        </div>
+        <div>
+          <span class="qs-label">Status</span>
+          <div class="qs-val rose">Live</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-panel">
+    <div class="panel-head">
+      <div>
+        <div class="sec-eyebrow">Filter</div>
+        <div class="sec-title">Find Events</div>
+      </div>
+      <span class="count-pill">{{ events|length }} Results</span>
+    </div>
+    <form method="get">
+      <div class="search-row">
+        <input type="text" name="q" class="form-ctrl"
+               placeholder="Search events by title…" value="{{ query }}">
+        <select name="category" class="form-ctrl">
+          <option value="">All Categories</option>
+          {% for value, label in category_choices %}
+            <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Apply</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- AI RECOMMENDATIONS -->
+  {% if user.is_authenticated and recommendations %}
+  <div class="rec-section">
+    <div class="section-head">
+      <div>
+        <div class="sec-eyebrow">Personalised For You</div>
+        <div class="sec-title" style="color:var(--mint);">Recommended</div>
+        <div style="font-size:.76rem;color:var(--muted);margin-top:.25rem;">TF-IDF + Cosine Similarity · Based on your history</div>
+      </div>
+      <span class="ai-badge"><div class="ai-dot"></div>AI Powered</span>
+    </div>
+    <div class="event-grid">
+      {% for event in recommendations %}
+      <div class="event-card rec">
+        {% if event.image %}
+          <img src="{{ event.image.url }}" class="event-img" alt="{{ event.title }}">
+        {% else %}
+          <div class="event-img-placeholder"><span>{{ event.category|upper|slice:":2" }}</span></div>
+        {% endif %}
+        <div class="event-body">
+          <div class="event-top">
+            <div class="event-title">{{ event.title }}</div>
+            <span class="cat-badge green">{{ event.category|title }}</span>
+          </div>
+          <p class="event-desc">{{ event.description|truncatechars:90 }}</p>
+          <div class="event-meta">
+            <div><span class="meta-label">Venue</span><span class="meta-val">{{ event.venue }}</span></div>
+            <div><span class="meta-label">Seats Left</span><span class="meta-val">{{ event.seats_left }}</span></div>
+          </div>
+          <div class="mt-auto">
+            {% if event.seats_left > 0 %}
+              <a href="/register/{{ event.id }}/" class="btn btn-success btn-w">Register Recommended →</a>
+            {% else %}
+              <button class="btn btn-danger btn-w" disabled>Event Full</button>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ALL EVENTS -->
+  <div style="animation:fadeUp .7s ease both .3s;">
+    <div class="section-head">
+      <div>
+        <div class="sec-eyebrow">Upcoming</div>
+        <div class="sec-title">Available Events</div>
+      </div>
+      <span class="count-pill">{{ events|length }} Events</span>
+    </div>
+    <div class="event-grid">
+      {% for event in events %}
+      <div class="event-card">
+        {% if event.image %}
+          <img src="{{ event.image.url }}" class="event-img" alt="{{ event.title }}">
+        {% else %}
+          <div class="event-img-placeholder"><span>{{ event.category|upper|slice:":2" }}</span></div>
+        {% endif %}
+        <div class="event-body">
+          <div class="event-top">
+            <div class="event-title">{{ event.title }}</div>
+            <span class="cat-badge">{{ event.category|title }}</span>
+          </div>
+          <p class="event-desc">{{ event.description|truncatechars:110 }}</p>
+          <div class="event-meta">
+            <div><span class="meta-label">Date</span><span class="meta-val">{{ event.date }}</span></div>
+            <div><span class="meta-label">Venue</span><span class="meta-val">{{ event.venue }}</span></div>
+            <div><span class="meta-label">Capacity</span><span class="meta-val">{{ event.capacity }}</span></div>
+            <div><span class="meta-label">Seats Left</span><span class="meta-val">{{ event.seats_left }}</span></div>
+          </div>
+          <div class="prog-wrap">
+            <div class="prog-head">
+              <span>Registrations</span>
+              <span>{{ event.registered_count }}/{{ event.capacity }}</span>
+            </div>
+            <div class="prog-track">
+              <div class="prog-fill" style="width:{% widthratio event.registered_count event.capacity 100 %}%"></div>
+            </div>
+          </div>
+          <div class="mt-auto">
+            {% if user.is_authenticated %}
+              {% if event.seats_left > 0 %}
+                <a href="/register/{{ event.id }}/" class="btn btn-primary btn-w">Register Now →</a>
+              {% else %}
+                <button class="btn btn-danger btn-w" disabled>Event Full</button>
+              {% endif %}
+            {% else %}
+              <a href="/login/" class="btn btn-ghost btn-w">Login to Register</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state">
+        <h4>No Events Found</h4>
+        <p>Try a different keyword or reset the filters.</p>
+        <a href="/" class="btn btn-primary">Reset Filters</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- FEATURE STRIP -->
+  <div class="feat-strip">
+    <div class="feat-grid">
+      <div class="feat-item">
+        <span class="feat-icon" style="color:var(--violet);">🔐</span>
+        <span class="feat-name">Secure Auth</span>
+        <span class="feat-sub">Django auth + protected actions</span>
+      </div>
+      <div class="feat-item">
+        <span class="feat-icon" style="color:var(--mint);">✦</span>
+        <span class="feat-name">AI Recommendations</span>
+        <span class="feat-sub">TF-IDF + cosine similarity</span>
+      </div>
+      <div class="feat-item">
+        <span class="feat-icon" style="color:var(--sky);">⬡</span>
+        <span class="feat-name">QR Entry Pass</span>
+        <span class="feat-sub">Unique registration verification</span>
+      </div>
+      <div class="feat-item">
+        <span class="feat-icon" style="color:var(--amber);">◈</span>
+        <span class="feat-name">Admin Analytics</span>
+        <span class="feat-sub">Insights + CSV reporting</span>
+      </div>
+    </div>
+  </div>
+
+</div>
 {% endblock %}

@@ -17,6 +17,8 @@ import re
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from .forms import StudentProfileForm
+from .models import UserProfile
 
 def home(request):
     query = request.GET.get('q', '')
@@ -88,7 +90,7 @@ def logout_view(request):
 def register_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 
-    # Check if event is full
+    # Check event capacity
     if event.seats_left() <= 0:
         messages.error(request, "Event is full.")
         return redirect('/')
@@ -98,9 +100,49 @@ def register_event(request, event_id):
         messages.error(request, "You have already registered for this event.")
         return redirect('/')
 
+    # Ensure user profile exists
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+
+    # Check if required student details are missing
+    profile_incomplete = not all([
+        profile.college_email,
+        profile.registration_number,
+        profile.branch,
+        profile.department,
+        profile.year_of_study,
+    ])
+
+    # If profile is incomplete, collect details first
+    if profile_incomplete:
+        if request.method == 'POST':
+            form = StudentProfileForm(request.POST, instance=profile)
+            if form.is_valid():
+                form.save()
+
+                # Proceed with registration after saving profile
+                Registration.objects.create(user=request.user, event=event)
+
+                send_mail(
+                    'Event Registration Confirmation',
+                    f'You have successfully registered for {event.title}',
+                    'admin@college.com',
+                    [request.user.email],
+                    fail_silently=True,
+                )
+
+                messages.success(request, "Profile saved and event registered successfully!")
+                return redirect('/')
+        else:
+            form = StudentProfileForm(instance=profile)
+
+        return render(request, 'register_event_form.html', {
+            'form': form,
+            'event': event
+        })
+
+    # If profile already complete, register directly
     Registration.objects.create(user=request.user, event=event)
 
-    # Send confirmation email (console backend for now)
     send_mail(
         'Event Registration Confirmation',
         f'You have successfully registered for {event.title}',
@@ -186,27 +228,43 @@ def export_registrations_csv(request):
 
     writer = csv.writer(response)
     writer.writerow([
-        'Username',
-        'Email',
-        'Event Title',
-        'Category',
-        'Date',
-        'Venue',
-        'Registration ID'
-    ])
+    'Username',
+    'College Email',
+    'Registration Number',
+    'Branch',
+    'Department',
+    'Year of Study',
+    'Event Title',
+    'Category',
+    'Date',
+    'Venue',
+    'Attendance',
+    'Verified At',
+    'Verified By',
+    'Registration ID'
+])
 
     registrations = Registration.objects.select_related('user', 'event').all()
 
     for reg in registrations:
-        writer.writerow([
-            reg.user.username,
-            reg.user.email,
-            reg.event.title,
-            reg.event.category,
-            reg.event.date,
-            reg.event.venue,
-            reg.registration_id
-        ])
+        profile = getattr(reg.user, 'userprofile', None)
+
+    writer.writerow([
+        reg.user.username,
+        getattr(profile, 'college_email', '') if profile else '',
+        getattr(profile, 'registration_number', '') if profile else '',
+        getattr(profile, 'branch', '') if profile else '',
+        getattr(profile, 'department', '') if profile else '',
+        getattr(profile, 'year_of_study', '') if profile else '',
+        reg.event.title,
+        reg.event.category,
+        reg.event.date,
+        reg.event.venue,
+        reg.attended,
+        reg.verified_at,
+        reg.verified_by.username if reg.verified_by else '',
+        reg.registration_id
+    ])
 
     return response
 
